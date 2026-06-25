@@ -3,12 +3,15 @@
 -- refer to Chapter 3 for Microsoft Azure
 use role ACCOUNTADMIN;
 
+/*
 create storage integration PARK_INN_INTEGRATION
   type = external_stage
   storage_provider = 'S3'
   enabled = true
   storage_aws_role_arn = 'arn:aws:iam::567890987654:role/Snowflake-demo'
   storage_allowed_locations = ('s3://parkinnorders001/');
+*/
+
 
 -- describe the storage integration and take note of the following parameters:
 -- - STORAGE_AWS_IAM_USER_ARN
@@ -20,8 +23,8 @@ grant usage on integration PARK_INN_INTEGRATION to role SYSADMIN;
 
 -- create a new schema in the BAKERY_DB database (see Chapter 2)
 use role SYSADMIN;
-create warehouse if not exists BAKERY_WH with warehouse_size = 'XSMALL';
-use warehouse BAKERY_WH;
+--create warehouse if not exists BAKERY_WH with warehouse_size = 'XSMALL';
+--use warehouse BAKERY_WH;
 create database if not exists BAKERY_DB;
 use database BAKERY_DB;
 create schema EXTERNAL_JSON_ORDERS;
@@ -32,6 +35,14 @@ create stage PARK_INN_STAGE
   storage_integration = PARK_INN_INTEGRATION
   url = 's3://parkinnorders001/'
   file_format = (type = json);
+
+-- create an external stage using a SAS token in Azure
+CREATE OR REPLACE STAGE PARK_INN_STAGE
+  URL='azure://snowflakestage001.blob.core.windows.net/parkinnorders01'
+  CREDENTIALS=(AZURE_SAS_TOKEN='?sv=2026-02-06&ss=b&srt=co&sp=rwdlcyx&se=2027-06-11T14:30:00Z&st=2026-06-09T14:30:00Z&spr=https&sig=OSrbooqF68OPFu8teP4yItweAIc6mAzxx8tYQYhClnE%3D')
+file_format = (type = json); --generate and use your own SAS token
+
+
 
 -- view files in the external stage
 list @PARK_INN_STAGE;

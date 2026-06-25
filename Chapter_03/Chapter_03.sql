@@ -7,8 +7,8 @@ create storage integration BISTRO_INTEGRATION
   type = external_stage
   storage_provider = 'AZURE'
   enabled = true
-  azure_tenant_id = '1234abcd-xxx-56efgh78' --use your own Tenant ID
-  storage_allowed_locations = ('azure://bakeryorders001.blob.core.windows.net/orderfiles/');
+  azure_tenant_id = '71a3136a-a5e2-4bc9-bef9-82657c5d4d7f' --use your own Tenant ID
+  storage_allowed_locations = ('azure://snowflakestage001.blob.core.windows.net/orderfiles01');
 
 -- describe the storage integration and take note of the following parameters:
 -- - AZURE_CONSENT_URL
@@ -31,19 +31,19 @@ use schema EXTERNAL_ORDERS;
 create stage BISTRO_STAGE
   storage_integration = BISTRO_INTEGRATION
   url = 'azure://bakeryorders001.blob.core.windows.net/orderfiles';
-
 -- Upload a sample file named Orders_2023-08-04.csv to the storage container
 
 -- view files in the external stage
 list @BISTRO_STAGE;
 
 -- create an external stage using a SAS token
-create stage BISTRO_SAS_STAGE
-  URL = 'azure://bakeryorders001.blob.core.windows.net/orderfiles'
-  CREDENTIALS=(AZURE_SAS_TOKEN = '?sv=2023-...%3D'); --generate and use your own SAS token
+CREATE OR REPLACE STAGE BISTRO_STAGE
+  URL='azure://snowflakestage001.blob.core.windows.net/orderfiles01'
+  CREDENTIALS=(AZURE_SAS_TOKEN='?sv=2026-02-06&ss=b&srt=co&sp=rwdlcyx&se=2027-06-11T14:30:00Z&st=2026-06-09T14:30:00Z&spr=https&sig=OSrbooqF68OPFu8teP4yItweAIc6mAzxx8tYQYhClnE%3D')
+file_format = ORDERS_CSV_FORMAT; --generate and use your own SAS token
 
 -- view files in the external stage
-list @BISTRO_SAS_STAGE;
+list @BISTRO_STAGE;
 
 -- create a named file format
 create file format ORDERS_CSV_FORMAT
@@ -56,6 +56,7 @@ create or replace stage BISTRO_STAGE
   storage_integration = BISTRO_INTEGRATION
   url = 'azure://bakeryorders001.blob.core.windows.net/orderfiles'
   file_format = ORDERS_CSV_FORMAT;
+
 
 -- create staging table for restaurant orders
 use database BAKERY_DB;

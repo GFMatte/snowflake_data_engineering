@@ -1,3 +1,5 @@
+-- Bakery orders pipeline: staging view, merge, and stored procedure with error handling
+-- Co-authored with CoCo
 use role SYSADMIN;
 create warehouse if not exists BAKERY_WH with warehouse_size = 'XSMALL';
 use warehouse BAKERY_WH;
@@ -6,16 +8,24 @@ use database BAKERY_DB;
 create schema TRANSFORM;
 use schema TRANSFORM;
 
--- create a view that combines data from individual staging tables
+-- create a view that combines data from individual staging tables (deduplicated on merge key)
 create view ORDERS_COMBINED_STG as
 select customer, order_date, delivery_date, baked_good_type, quantity, source_file_name, load_ts
-from bakery_db.orders.ORDERS_STG
-union all
-select customer, order_date, delivery_date, baked_good_type, quantity, source_file_name, load_ts
-from bakery_db.external_orders.ORDERS_BISTRO_STG
-union all
-select customer, order_date, delivery_date, baked_good_type, quantity, source_file_name, load_ts
-from bakery_db.external_json_orders.ORDERS_PARK_INN_STG;
+from (
+  select customer, order_date, delivery_date, baked_good_type, quantity, source_file_name, load_ts,
+    row_number() over (partition by customer, delivery_date, baked_good_type order by load_ts desc) as rn
+  from (
+    select customer, order_date, delivery_date, baked_good_type, quantity, source_file_name, load_ts
+    from bakery_db.orders.ORDERS_STG
+    union all
+    select customer, order_date, delivery_date, baked_good_type, quantity, source_file_name, load_ts
+    from bakery_db.external_orders.ORDERS_BISTRO_STG
+    union all
+    select customer, order_date, delivery_date, baked_good_type, quantity, source_file_name, load_ts
+    from bakery_db.external_json_orders.ORDERS_PARK_INN_STG
+  )
+)
+where rn = 1;
 
 -- create target table that will store historical orders combined from all sources
 use database BAKERY_DB;
@@ -77,7 +87,7 @@ call LOAD_CUSTOMER_ORDERS();
 use database BAKERY_DB;
 use schema TRANSFORM;
 -- Listing 4.8
-create procedure LOAD_CUSTOMER_ORDERS()
+create or replace procedure LOAD_CUSTOMER_ORDERS()
 returns varchar
 language sql
 as

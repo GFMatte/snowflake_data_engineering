@@ -1,12 +1,14 @@
 -- create a storage integration
 use role ACCOUNTADMIN;
 
+/*
 create storage integration SPEEDY_INTEGRATION
   type = external_stage
   storage_provider = 'AZURE'
   enabled = true
   azure_tenant_id = '1234abcd-xxx-56efgh78' --use your own Tenant ID
   storage_allowed_locations = ('azure://speedyorders001.blob.core.windows.net/speedyservicefiles/');;
+*/
 
 -- describe the storage integration and take note of the following parameters:
 -- - AZURE_CONSENT_URL
@@ -24,11 +26,18 @@ use database BAKERY_DB;
 create schema DELIVERY_ORDERS;
 use schema DELIVERY_ORDERS;
 
+/*
 -- create an external stage using the storage integration
 create stage SPEEDY_STAGE
   storage_integration = SPEEDY_INTEGRATION
   url = 'azure://speedyorders001.blob.core.windows.net/speedyservicefiles/'
   file_format = (type = json);
+*/
+-- create an external stage using a SAS token in Azure
+CREATE OR REPLACE STAGE SPEEDY_STAGE
+  URL='azure://snowflakestage001.blob.core.windows.net/speedyservicefiles01'
+  CREDENTIALS=(AZURE_SAS_TOKEN='?sv=2026-02-06&ss=b&srt=co&sp=rwdlcyx&se=2027-06-11T14:30:00Z&st=2026-06-09T14:30:00Z&spr=https&sig=OSrbooqF68OPFu8teP4yItweAIc6mAzxx8tYQYhClnE%3D')
+file_format = (type = json); --generate and use your own SAS token
 
 -- view files in the external stage
 list @SPEEDY_STAGE;
@@ -65,13 +74,15 @@ CREATE NOTIFICATION INTEGRATION SPEEDY_QUEUE_INTEGRATION
 ENABLED = true
 TYPE = QUEUE
 NOTIFICATION_PROVIDER = AZURE_STORAGE_QUEUE
-AZURE_STORAGE_QUEUE_PRIMARY_URI = 'https://speedyorders001.queue.core.windows.net/speedyordersqueue'
-AZURE_TENANT_ID = '1234abcd-xxx-56efgh78';
+AZURE_STORAGE_QUEUE_PRIMARY_URI = 'https://snowflakestage001.queue.core.windows.net/speedyordersqueue'
+AZURE_TENANT_ID = '71a3136a-a5e2-4bc9-bef9-82657c5d4d7f';
 
 -- describe the storage integration and take note of the following parameters:
 -- - AZURE_CONSENT_URL
 -- - AZURE_MULTI_TENANT_APP_NAME
 describe notification integration SPEEDY_QUEUE_INTEGRATION;
+
+SHOW INTEGRATIONS;
 
 -- grant usage on notification integration so that the SYSADMIN role can use it
 grant usage on integration SPEEDY_QUEUE_INTEGRATION to role SYSADMIN;

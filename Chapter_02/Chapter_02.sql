@@ -17,7 +17,7 @@ list @ORDERS_STAGE;
 list @ORDERS_STAGE;
 
 -- then view data in the internal stage
-select $1, $2, $3, $4, $5 from @ORDERS_STAGE;
+select $1, $2, $3, $4, $5 from @ORDERS_STAGE/Orders_2023-07-07.csv;
 
 -- create staging table
 use database BAKERY_DB;
@@ -132,7 +132,7 @@ select * from SUMMARY_ORDERS;
 use database BAKERY_DB;
 use schema ORDERS;
 create or replace task PROCESS_ORDERS
-  warehouse = BAKERY_WH
+  warehouse = COMPUTE_WH
   schedule = '10 M'
 as
 begin
