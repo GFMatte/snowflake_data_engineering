@@ -27,4 +27,5 @@ ts = my_session.sql("select current_timestamp()").collect()
 print(ts)
 
 # close the session
+
 my_session.close()

@@ -1,6 +1,7 @@
 #Listing 6.1
 # the Snowpark package is required for Python Worksheets
 import snowflake.snowpark as snowpark
+from snowflake.snowpark.context import get_active_session
 # importing the holidays package
 import holidays
 
@@ -12,3 +13,4 @@ def is_holiday(session: snowpark.Session):
         return True
     else:
         return False
+    

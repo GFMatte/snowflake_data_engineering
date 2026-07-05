@@ -1,9 +1,10 @@
 {
-    "account"                 : "ab12345",
-    "user"                    : "my_user",
-    "password"                : "my_pass",
+    "account"                 : "KVAIEAM-GS58625",
+    "user"                    : "GUILHERME MATTE",
+    "password"                : "Notitia-is-cool!69",
     "role"                    : "SYSADMIN",
-    "warehouse"               : "BAKERY_WH",
+    "warehouse"               : "COMPUTE_WH",
     "database"                : "BAKERY_DB",
     "schema"                  : "SNOWPARK"
 }
+

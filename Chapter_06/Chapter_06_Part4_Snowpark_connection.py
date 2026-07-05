@@ -9,11 +9,11 @@ from snowflake.snowpark import Session
 
 # create a dictionary with the connection parameters
 connection_parameters_dict = {
-    "account": "pqrstuv-ab12345", # replace with your Snowflake account
-    "user": "my_user", # replace with your username
-    "password": "my_pass", # replace with your password
+    "account": "KVAIEAM-GS58625", # replace with your Snowflake account
+    "user": "GUILHERME MATTE", # replace with your username
+    "password": "pass", # replace with your password
     "role": "SYSADMIN",
-    "warehouse": "BAKERY_WH",
+    "warehouse": "COMPUTE_WH",
     "database": "BAKERY_DB",
     "schema": "SNOWPARK"
 }  

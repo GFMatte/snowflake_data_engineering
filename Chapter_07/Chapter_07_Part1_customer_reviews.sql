@@ -25,7 +25,7 @@ create network rule YELP_API_NETWORK_RULE
 -- create a secret
 create secret YELP_API_TOKEN
   type = GENERIC_STRING
-  secret_string = 'ab12DE...89XYZ';
+  secret_string = 'LEnhgPBsK2ELxoK9DeG4GjB7QdTGhWbLd2FCp33mx30YZWRxlXzrtoZ0LwvPhKJVgYDIFyfs8Jj8fC9xEMNvt5JxHlfI3b1ielXw4YOGuPoR3viY0PCVo31PGV9KanYx';
 
 -- grant usage on the secret to a custom role if that role will be using the secret 
 grant read on secret YELP_API_TOKEN to role <custom_role>;
@@ -59,15 +59,19 @@ def get_reviews(business_alias):
     url=url, 
     headers = {'Authorization': 'Bearer ' + api_key}
   )
-  return response.json()
+  return {
+        "status": response.status_code,
+        "url": response.url,
+        "body": response.json()
+    }
 $$;
 
 -- select from the UDF
-select GET_CUSTOMER_REVIEWS('boulangerie-julien-paris-3');
+select GET_CUSTOMER_REVIEWS('IWc6D0H6FRAd6kMOVthPXg');
 
 -- select the value from the "reviews key"
 --Listing 7.3
-select GET_CUSTOMER_REVIEWS('boulangerie-julien-paris-3'):"reviews";
+select GET_CUSTOMER_REVIEWS('coffee-branch-adelaide'):"reviews";
 
 -- flatten the values of the "rating", "time_created", and "text" keys
 --Listing 7.5
@@ -76,7 +80,7 @@ select
   value:"time_created"::timestamp as time_created, 
   value:"text"::varchar as customer_review
 from table(flatten(input => 
-  GET_CUSTOMER_REVIEWS('boulangerie-julien-paris-3'):"reviews"
+  GET_CUSTOMER_REVIEWS('coffee-branch-adelaide'):"reviews"
 ));
 
 -- create a table to store the customer reviews
@@ -95,9 +99,70 @@ select
   regexp_replace(value:"text"::varchar, 
     '[^a-zA-Z0-9 .,!?-]+')::varchar as customer_review
 from table(flatten(
-  input => GET_CUSTOMER_REVIEWS('boulangerie-julien-paris-3'):"reviews"
+  input => GET_CUSTOMER_REVIEWS('coffee-branch-adelaide'):"reviews"
 ));
 
 
 -- select data from the table
+select * from CUSTOMER_REVIEWS;
+
+-- Since the API requires paid subscriptiont, will use the following query to create dummy data for the CUSTOMER_REVIEWS table
+use role SYSADMIN;
+use database BAKERY_DB;
+use schema REVIEWS;
+
+create or replace function GET_CUSTOMER_REVIEWS_DUMMY(business_alias varchar)
+returns variant
+language sql
+as
+$$
+parse_json('{
+  "reviews": [
+    {
+      "rating": 5,
+      "time_created": "2026-06-21 09:15:00",
+      "text": "Excellent coffee and friendly staff. The pastries were fresh and delicious."
+    },
+    {
+      "rating": 4,
+      "time_created": "2026-06-18 12:40:00",
+      "text": "Nice little cafe in Adelaide. Good espresso and quick service."
+    },
+    {
+      "rating": 5,
+      "time_created": "2026-06-10 08:05:00",
+      "text": "Loved the flat white. Great place for a quick breakfast."
+    }
+  ]
+}')
+$$;
+
+-- Flattened query using the dummy function
+select 
+  value:"rating"::number as rating, 
+  value:"time_created"::timestamp as time_created, 
+  value:"text"::varchar as customer_review
+from table(flatten(input => 
+  GET_CUSTOMER_REVIEWS_DUMMY('coffee-branch-adelaide'):"reviews"
+));
+
+create or replace table CUSTOMER_REVIEWS (
+  rating number,
+  time_created timestamp,
+  customer_review varchar
+);
+
+-- Inser the data into the table using the dummy function
+insert into CUSTOMER_REVIEWS
+select 
+  value:"rating"::number as rating, 
+  value:"time_created"::timestamp as time_created, 
+  regexp_replace(
+    value:"text"::varchar, 
+    '[^a-zA-Z0-9 .,!?-]+'
+  )::varchar as customer_review
+from table(flatten(
+  input => GET_CUSTOMER_REVIEWS_DUMMY('coffee-branch-adelaide'):"reviews"
+));
+
 select * from CUSTOMER_REVIEWS;
