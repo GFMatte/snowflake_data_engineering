@@ -28,7 +28,7 @@ def get_order_info_from_email(session: snowpark.Session, email_content):
     Items should be in this list: [white loaf, rye loaf, baguette, bagel, croissant, chocolate muffin, blueberry muffin].  \
     The content of the email follows this line. \n {email_content}"""
 
-  csv_output = Complete('snowflake-arctic', prompt)
+  csv_output = Complete('llama3.1-8b', prompt)
   
   schema = StructType([ 
         StructField("CUSTOMER", StringType(), False),  
