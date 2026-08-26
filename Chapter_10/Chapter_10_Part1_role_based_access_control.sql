@@ -52,13 +52,14 @@ grant role DATA_ANALYST to role SYSADMIN;
 -- grant the functional roles to the users who perform those business functions
 -- in this exercise we grant both functional roles to our current user to be able to test them
 
-set my_current_user = current_user();
+set my_current_user = (select '"' || current_user() || '"');
 grant role DATA_ENGINEER to user IDENTIFIER($my_current_user);
 grant role DATA_ANALYST to user IDENTIFIER($my_current_user);
 
 -- grant usage on the BAKERY_WH warehouse to the functional roles
 grant usage on warehouse BAKERY_WH to role DATA_ENGINEER;
 grant usage on warehouse BAKERY_WH to role DATA_ANALYST;
+
 
 -- to test, use the DATA_ENGINEER role to create a table in the RAW schema and insert some sample values
 use role DATA_ENGINEER;
@@ -80,6 +81,9 @@ insert into EMPLOYEE values
 (1003, 'Jennifer Navarro', '880 Dictum Ave.', 'Pastry', '2019-08-01'),
 (1004, 'Sandra Perkins', '55 Velo St.', 'Bread', '2022-05-01');
 
+-- Remove all roles from the current session to test the access privileges of the functional roles
+USE SECONDARY ROLES NONE;
+
 -- use the DATA_ANALYST role to select from the table in the RAW schema
 use role DATA_ANALYST;
 select * from RAW.EMPLOYEE;
@@ -94,4 +98,6 @@ from RAW.EMPLOYEE;
 -- switch to the DATA_ANALYST role and select from the view in the RPT schema
 use role DATA_ANALYST;
 select * from RPT.EMPLOYEE;
+
 -- should return values
+
