@@ -2,7 +2,9 @@
 -- if you created the storage integration already in Chapter 4, no need to recreate it
 -- grant usage on the storage integration object to the DATA_ENGINEER role
 use role ACCOUNTADMIN;
-grant usage on integration PARK_INN_INTEGRATION to role DATA_ENGINEER;
+
+-- there is no integration since the external stage was created with SAS token
+--grant usage on integration PARK_INN_INTEGRATION to role DATA_ENGINEER;
 
 -- use the DATA_ENGINEER role going forward
 use role DATA_ENGINEER;
@@ -13,6 +15,11 @@ use schema EXT;
 -- create an external stage named JSON_ORDERS_STAGE using the PARK_INN_INTEGRATION as described in Chapter 4
 -- be sure to create the external stage with the JSON file format, eg. file_format = (type = json)
 -- upload the json files Orders_2023-09-01.json and Orders_2023-09-04.json to the object storage location used in the stage
+-- create an external stage using a SAS token in Azure
+CREATE OR REPLACE STAGE JSON_ORDERS_STAGE
+  URL='azure://snowflakestage001.blob.core.windows.net/jsonorders01'
+  CREDENTIALS=(AZURE_SAS_TOKEN='sp=racwdl&st=2026-08-31T13:41:13Z&se=2027-08-31T21:56:13Z&spr=https&sv=2026-02-06&sr=c&sig=F5Z5NT4eE8y1yqzPd2XH6BWv4piacnz58ovHUzCcLsU%3D')
+file_format = (type = json); --generate and use your own SAS token
 
 -- view files in the stage
 list @JSON_ORDERS_STAGE;
@@ -23,6 +30,7 @@ create table JSON_ORDERS_EXT (
   source_file_name varchar,
   load_ts timestamp
 );
+
 
 -- copy data from the stage into the extract table
 copy into JSON_ORDERS_EXT
