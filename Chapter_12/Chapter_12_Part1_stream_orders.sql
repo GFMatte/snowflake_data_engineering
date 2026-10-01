@@ -1,6 +1,8 @@
 -- this chapter is a continuation of Chapter 10
 -- all scripts in Chapter 10 must be executed before continuing
 
+SHOW STREAMS;
+
 use role DATA_ENGINEER;
 use warehouse BAKERY_WH;
 use database BAKERY_DB;
@@ -8,6 +10,9 @@ use schema EXT;
 
 -- delete all files from the object storage location used in the JSON_ORDERS_STAGE stage
 -- upload the json file Orders_2023-09-05.json to the object storage location 
+
+List @JSON_ORDERS_STAGE;
+
 
 -- recreate the table to remove any data from previous exercises
 create or replace table JSON_ORDERS_EXT (
