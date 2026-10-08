@@ -33,6 +33,7 @@ execute task COPY_ORDERS_TASK;
 -- Listing 13.1
 select *
   from table(information_schema.task_history())
+  where query_id is distinct from null
   order by scheduled_time desc;
 
 -- create a task that inserts data from the stream into the staging table

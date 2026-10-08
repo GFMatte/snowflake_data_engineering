@@ -11,7 +11,7 @@ grant usage on integration PIPELINE_EMAIL_INT to role DATA_ENGINEER;
 use role DATA_ENGINEER;
 call SYSTEM$SEND_EMAIL(
     'PIPELINE_EMAIL_INT',
-    'firstname.lastname@youremail.com', -- substitute you email address
-    'The subject of the email from Snowflake',
-    'This is the body of the email.'
+    'guilherme.matte@notitia.com.au', -- substitute you email address
+    'Send email from Snowflake using the PIPELINE_EMAIL_INT integration',
+    'This is a test email sent from Snowflake using the PIPELINE_EMAIL_INT integration. Please ignore this email.'
 );
