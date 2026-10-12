@@ -154,7 +154,7 @@ as
   
     call SYSTEM$SEND_EMAIL(
       'PIPELINE_EMAIL_INT',
-      'firstname.lastname@youremail.com',    
+     'guilherme.matte@notitia.com.au',    
       'Daily pipeline end',
       'The daily pipeline finished at ' || current_timestamp || '.' ||
         '\n\n' || :return_message
