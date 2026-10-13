@@ -10,7 +10,7 @@ create or replace task PIPELINE_START_TASK
 as
   call SYSTEM$SEND_EMAIL(
     'PIPELINE_EMAIL_INT',
-    'firstname.lastname@youremail.com', -- substitute you email address
+    'guilherme.matte@notitia.com.au', -- substitute you email address
     'Daily pipeline start',
     'The daily pipeline started at ' || current_timestamp || '.'
 );
@@ -47,7 +47,7 @@ create task PIPELINE_END_TASK
 as
   call SYSTEM$SEND_EMAIL(
     'PIPELINE_EMAIL_INT',
-    'firstname.lastname@youremail.com', -- substitute you email address
+    'guilherme.matte@notitia.com.au', -- substitute you email address
     'Daily pipeline end',
     'The daily pipeline finished at ' || current_timestamp || '.'
 );
