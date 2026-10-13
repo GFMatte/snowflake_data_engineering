@@ -1,14 +1,14 @@
 use role SYSADMIN;
-create database ADMIN_DB;
-create schema GIT_INTEGRATION;
+create or replace database ADMIN_DB;
+create or replace schema GIT_INTEGRATION;
 
 -- continue to use the SYSADMIN role to keep the exercise simple
 -- otherwise, create a custom role and grant it the CREATE SECRET ON SCHEMA privilege
 -- create the git secret
 create or replace secret GIT_SECRET
   type = password
-  username = <your Git username>
-  password = <your password>
+  username = 'guilhermematte93@gmail.com'
+  password = <token>
 ;
 
 -- use the ACCOUNTADMIN role to create an API integration to keep the exercise simple
@@ -18,7 +18,7 @@ use role ACCOUNTADMIN;
 create or replace api integration GIT_API_INTEGRATION
   API_PROVIDER = git_https_api
 -- replace your Git account in the next line (example 'https://github.com/mferle')
-  API_ALLOWED_PREFIXES = ('https://<your Git host>/<your Git account>')
+  API_ALLOWED_PREFIXES = ('https://github.com/GFMatte')
   ALLOWED_AUTHENTICATION_SECRETS = (GIT_SECRET)
   ENABLED = TRUE;
 
@@ -33,7 +33,7 @@ create or replace git repository SF_DE
   api_integration = GIT_API_INTEGRATION
   git_credentials = GIT_SECRET
 -- replace the URL to your repository in the next line
-  ORIGIN = 'https://<your Git host>/<your Git account>/snowflake-data-engineering.git'; 
+  ORIGIN = 'https://github.com/GFMatte/snowflake_data_engineering.git'; 
 
 -- fetch the latest from the Git repository
 alter git repository SF_DE fetch;
